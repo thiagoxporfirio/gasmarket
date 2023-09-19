@@ -1,6 +1,6 @@
 import { useContext } from "react";
 
-import { Dinied } from "../pages/Dinied";
+import Dinied  from "../pages/Dinied";
 
 export const RequireAuth = ({ children }) => {
   const auth = useContext();
