@@ -4,7 +4,7 @@ O aplicativo "Gas Market" é uma ferramenta poderosa para gerenciar clientes e c
 
 ## Exemplo Visual
 
-![Exemplo Visual do Aplicativo Gas Market]("./assets/viewsite.png")
+![Exemplo Visual do Aplicativo Gas Market]("../assets/viewsite.png")
 
 ## Recursos Principais
 
