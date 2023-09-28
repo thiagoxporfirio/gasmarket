@@ -1,8 +1,29 @@
-import React from "react";
+import React, { useState } from "react";
 import { GiGasStove } from "react-icons/gi";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Login() {
-  
+  const [user, setUser] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    const response = await fetch("URL_DO_SEU_BACKEND", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ user, password }),
+    });
+
+    if (response.ok) {
+      localStorage.setItem("userLoggedIn", "true");
+    } else {
+      toast.error("Error! Verifique suas credenciais.");
+    }
+  };
 
   return (
     <div className="flex h-screen items-center justify-center bg-gray-100">
@@ -11,7 +32,7 @@ export default function Login() {
           <GiGasStove alt="Logo da Empresa" className="mx-auto w-[60px] h-16" />
           <h1 className="text-2xl font-semibold">Login</h1>
         </div>
-        <form>
+        <form onSubmit={handleLogin}>
           <div className="mb-4">
             <label htmlFor="nome" className="block text-gray-600 font-medium">
               User
@@ -20,6 +41,8 @@ export default function Login() {
               type="text"
               id="user"
               name="user"
+              value={user}
+              onChange={(e) => setUser(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
             />
           </div>
@@ -35,6 +58,8 @@ export default function Login() {
               type="password"
               id="password"
               name="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
             />
           </div>

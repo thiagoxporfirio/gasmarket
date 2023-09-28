@@ -1,20 +1,61 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { GiGasStove } from "react-icons/gi";
 
 import InputMask from "react-input-mask";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 export default function Register() {
-  const [valor, setValor] = useState("");
+  const [formData, setFormData] = useState({
+    nome: "",
+    categoria: "pessoa",
+    endereco: "",
+    telefone: "",
+    valor: "",
+  });
 
   const formatarValor = (valor) => {
     return `R$ ${valor}`;
   };
 
+
   const handleValorChange = (e) => {
     const novoValor = e.target.value.replace(/\D/g, ""); // Remove não números
-    setValor(formatarValor(novoValor));
+    setFormData({
+      ...formData,
+      valor: novoValor
+    });
   };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+
+    try{
+      const response = await fetch("", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if(response.ok){
+        setFormData({
+          nome: "",
+          categoria: "pessoa",
+          endereco: "",
+          telefone: "",
+          valor: "",
+        });
+      }else{
+        toast.error("Error! Verifique se os dados estao corretos.")
+      }
+    }catch(error){
+      console.error("Error ao enviar o FORM:", error)
+    }
+  }
 
   return (
     <div className="flex h-screen items-center justify-center bg-gray-100">
@@ -23,7 +64,7 @@ export default function Register() {
           <GiGasStove alt="Logo da Empresa" className="mx-auto w-[60px] h-16" />
           <h1 className="text-2xl font-semibold">Cadastrar cliente</h1>
         </div>
-        <form>
+        <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label htmlFor="nome" className="block text-gray-600 font-medium">
               Nome
