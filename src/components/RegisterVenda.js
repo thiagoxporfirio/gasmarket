@@ -19,7 +19,16 @@ export default function VendaRegister() {
 
   const handleValorChange = (e) => {
     const novoValor = e.target.value.replace(/\D/g, ""); // Remove não números
-    setPreco(novoValor); // Atualize o estado "valor" diretamente
+    const valorEmCentavos = parseInt(novoValor, 10); // Converte para número inteiro
+
+    if (!isNaN(valorEmCentavos)) {
+      // Formate o valor para ter duas casas decimais
+      const valorFormatado = (valorEmCentavos / 100).toLocaleString("pt-BR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+      setPreco(valorFormatado);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -45,15 +54,23 @@ export default function VendaRegister() {
       );
 
       if (response.ok) {
+
         setIsLoading(true);
+
       } else {
+
         toast.error("Error! Verifique se os dados estao corretos.");
+        
       }
     } catch (error) {
+
       console.error("Error ao enviar o FORM:", error);
       setIsLoading(false);
+
     } finally {
+
       setIsLoading(false); // Certifique-se de definir isLoading como falso, mesmo em caso de erro.
+
     }
   };
 
@@ -113,6 +130,7 @@ export default function VendaRegister() {
               name="preco"
               onChange={handleValorChange}
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+              placeholder="00,00"
             />
           </div>
 
@@ -130,6 +148,7 @@ export default function VendaRegister() {
               name="quantidade"
               onChange={(e) => setQuantidade(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+              placeholder="2"
             />
           </div>
 
