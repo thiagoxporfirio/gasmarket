@@ -13,28 +13,30 @@ import { Link } from "react-router-dom";
 export default function Register() {
   const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState("");
-  const [categoria, setCategoria] = useState("residencia"); // Padrão para "Residencia"
   const [endereco, setEndereco] = useState("");
   const [telefone, setTelefone] = useState("");
-  const [valor, setValor] = useState("");
-
-  const formatarValor = (valor) => {
-
-    return `R$ ${valor}`;
-
-  };
+  const [vencimento, setVencimento] = useState("");
+  const [categoria, setCategoria] = useState("residencia"); // Padrão para "Residencia"
 
   const handleSelectChange = (e) => {
 
     setCategoria(e.target.value);
 
   };
+  
+  const handleEnderecoChange = (e) => {
+    const enderecoInput = e.target.value;
 
-  const handleValorChange = (e) => {
+    // Quebra o endereço em partes: rua, número, bairro, cidade
+    const [rua, numero, bairro, cidade] = enderecoInput.split("-");
 
-    const novoValor = e.target.value.replace(/\D/g, ""); // Remove não números
-    setValor(novoValor); // Atualize o estado "valor" diretamente
+    const estado = "SP";
+    const pais = "Brasil";
 
+    // Formata o endereço de acordo com o padrão esperado
+    const enderecoFormatado = `${rua}-${numero}-${bairro}-${cidade}-${estado}-${pais}`;
+
+    setEndereco(enderecoFormatado);
   };
 
   const handleSubmit = async (e) => {
@@ -43,40 +45,35 @@ export default function Register() {
     try {
       const formData = {
         nome: name,
-        categoria: categoria,
         endereco: endereco,
         telefone: telefone,
-        valor: valor,
+        diasVencimento: vencimento,
       };
 
-      const response = await fetch("http://localhost:3001/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await fetch(
+        "https://gas-controller-f4c05ad03233.herokuapp.com/cliente",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
 
       if (response.ok) {
-
         setIsLoading(true);
-
       } else {
-
         toast.error("Error! Verifique se os dados estao corretos.");
       }
     } catch (error) {
-
       console.error("Error ao enviar o FORM:", error);
       setIsLoading(false);
-      
     } finally {
-
       setName("");
-      setCategoria("residencia");
       setEndereco("");
       setTelefone("");
-      setValor("");
+      setVencimento("");
 
       setIsLoading(false); // Certifique-se de definir isLoading como falso, mesmo em caso de erro.
     }
@@ -88,6 +85,12 @@ export default function Register() {
         <div className="text-center mb-6">
           <GiGasStove alt="Logo da Empresa" className="mx-auto w-[60px] h-16" />
           <h1 className="text-2xl font-semibold">Cadastrar cliente</h1>
+          <Link
+            to="/venda"
+            className="text-blue-500 hover:underline"
+          >
+            Já existe o cliente?
+          </Link>
         </div>
         <div
           className="cursor-pointer "
@@ -115,6 +118,24 @@ export default function Register() {
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
             />
           </div>
+
+          <div className="mb-4">
+            <label
+              htmlFor="endereco"
+              className="block text-gray-600 font-medium"
+            >
+              Endereço
+            </label>
+            <input
+              type="text"
+              value={endereco}
+              id="endereco"
+              name="endereco"
+              onChange={handleEnderecoChange}
+              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+              placeholder="Rua rubens fiori 303 Jd california Sertãozinho"
+            />
+          </div>
           <div className="mb-4">
             <label
               htmlFor="categoria"
@@ -140,16 +161,16 @@ export default function Register() {
               htmlFor="endereco"
               className="block text-gray-600 font-medium"
             >
-              Endereço
+              Vencimento
             </label>
             <input
-              type="text"
-              value={endereco}
-              id="endereco"
-              name="endereco"
-              onChange={(e) => setEndereco(e.target.value)}
+              type="number"
+              value={vencimento}
+              id="vencimento"
+              name="vencimento"
+              onChange={(e) => setVencimento(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
-              placeholder="Av presidente castelo branco, Centro 453"
+              placeholder="Quantos dias ate o gas acabar?"
             />
           </div>
           <div className="mb-4">
@@ -168,22 +189,6 @@ export default function Register() {
               onChange={(e) => setTelefone(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
               placeholder="(00) 00000-0000"
-            />
-          </div>
-          <div className="mb-4 relative">
-            <label htmlFor="valor" className="block text-gray-600 font-medium">
-              Valor
-            </label>
-            <input
-              type="text"
-              id="valor"
-              name="valor"
-              value={valor}
-              onChange={handleValorChange}
-              className=" w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 justify-start "
-              placeholder="0.00"
-              pattern="[0-9]*"
-              inputMode="numeric"
             />
           </div>
           <div className="mt-4">

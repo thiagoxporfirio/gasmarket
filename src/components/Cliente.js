@@ -5,8 +5,6 @@ export default function ClientList() {
   const [selectedOption, setSelectedOption] = useState("allClients");
 
   useEffect(() => {
-    // Faça uma chamada para a API aqui para obter os dados completos
-    // Substitua a URL da API pela sua API real
 
     const fetchData = async () => {
       try {
@@ -60,14 +58,18 @@ export default function ClientList() {
       <ul>
         {" "}
         {selectedOption === "allClients" &&
+
           data.map((client) => (
             <li key={client.id}>
               <h3 className="text-lg font-medium"> {client.nome} </h3>{" "}
               <p> Telefone: {client.telefone} </p>{" "}
               <p> Endereço: {client.endereco} </p> <hr className="my-2" />
             </li>
+
           ))}{" "}
+
         {selectedOption === "allSales" &&
+
           data.map((sale) => (
             <li key={sale.id}>
               <h3 className="text-lg font-medium"> Venda </h3>{" "}
@@ -75,7 +77,9 @@ export default function ClientList() {
               <p> Tipo do Cliente: {sale.tipoCliente} </p>{" "}
               <hr className="my-2" />
             </li>
+
           ))}{" "}
+
       </ul>{" "}
     </div>
   );

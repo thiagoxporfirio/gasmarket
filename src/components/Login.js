@@ -14,21 +14,29 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    const response = await fetch("URL_DO_SEU_BACKEND", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ user, password }),
+    const formData = {
+      nome: user,
+      senha: password,
+    };
+  
+    const response = await fetch("https://gas-controller-f4c05ad03233.herokuapp.com/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
     });
-
-    if (user && password) {
+  
+    if (response.ok) {
+      const data = await response.json(); // Converte a resposta para JSON
+      const token = data.token; // Assume que o token está na resposta
+  
       setIsLoading(true);
-
+  
       setTimeout(() => {
         localStorage.setItem(
           "userLoggedIn",
-          JSON.stringify({ user, password })
+          JSON.stringify({ token })
         );
         localStorage.setItem("userLoggedInOk", "true");
         navigate("/registerclients");
