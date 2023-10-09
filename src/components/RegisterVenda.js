@@ -1,25 +1,87 @@
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { FcSalesPerformance } from "react-icons/fc";
 import { SlChart } from "react-icons/sl";
 import { Tooltip as ReactTooltip } from "react-tooltip";
-
-import InputMask from "react-input-mask";
-import { toast, ToastContainer } from "react-toastify";
+import Select from "react-select";
+import { toast } from "react-toastify";
 import { PulseLoader } from "react-spinners";
 import "react-toastify/dist/ReactToastify.css";
 import { Link } from "react-router-dom";
+import { FaSearch } from "react-icons/fa";
+
+function CustomSelect(props) {
+  return (
+    <div className="relative">
+      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <FaSearch className="text-gray-400" />
+      </div>
+      <Select {...props} />
+    </div>
+  );
+}
 
 export default function VendaRegister() {
   const [isLoading, setIsLoading] = useState(false);
   const [telefone, setTelefone] = useState("");
   const [preco, setPreco] = useState("");
   const [quantidade, setQuantidade] = useState("");
+  const [searchValue, setSearchValue] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [selectedClientId, setSelectedClientId] = useState(null);
   const dataAtual = new Date().toLocaleDateString();
 
+  let userLoggedInObject = localStorage.getItem("userLoggedIn");
+  let userLoggedIn = JSON.parse(userLoggedInObject);
+  const token = userLoggedIn.token;
+
+  const headers = {
+    Authorization: `${token}`,
+  };
+
+  useEffect(() => {
+    // Função para buscar dados da API com base no valor de pesquisa
+    const fetchData = async (filterValue) => {
+      try {
+        const response = await fetch(
+          `https://gas-controller-f4c05ad03233.herokuapp.com/cliente?search=${filterValue}`,
+          {
+            method: "GET",
+            headers: headers,
+          }
+        );
+        if (!response.ok) {
+          console.log(token);
+          throw new Error("Erro ao buscar dados da API");
+        }
+        const data = await response.json();
+        console.log(data);
+        setSearchResults(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    if (searchValue.trim() !== "") {
+      fetchData();
+    } else {
+      setSearchResults([]);
+    }
+  }, [searchValue]);
+
+  const handleSelectChange = (selectedOption) => {
+    if (selectedOption) {
+      const selectedId = selectedOption.value; 
+      setSelectedClientId(selectedId); 
+      console.log("ID da opção selecionada:", selectedId); 
+      setSelectedOption(selectedOption); 
+      setSearchValue(selectedOption.label); 
+    }
+  };
+
   const handleValorChange = (e) => {
-    const novoValor = e.target.value.replace(/\D/g, ""); // Remove não números
-    const valorEmCentavos = parseInt(novoValor, 10); // Converte para número inteiro
+    const novoValor = e.target.value.replace(/\D/g, "");
+    const valorEmCentavos = parseInt(novoValor, 10);
 
     if (!isNaN(valorEmCentavos)) {
       // Formate o valor para ter duas casas decimais
@@ -36,42 +98,35 @@ export default function VendaRegister() {
 
     try {
       const formData = {
+        id: selectedClientId,
         preco: preco,
         quantidade: quantidade,
-        telefone: telefone,
-        created_at: dataAtual,
       };
 
       const response = await fetch(
-        "https://gas-controller-f4c05ad03233.herokuapp.com/cliente",
+        "https://gas-controller-f4c05ad03233.herokuapp.com/venda",
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: headers,
           body: JSON.stringify(formData),
         }
       );
 
       if (response.ok) {
-
         setIsLoading(true);
-
       } else {
-
-        toast.error("Error! Verifique se os dados estao corretos.");
-        
+        toast.error("Error! Verifique se os dados estão corretos.");
       }
     } catch (error) {
-
-      console.error("Error ao enviar o FORM:", error);
+      console.error("Erro ao enviar o FORM:", error);
       setIsLoading(false);
-
     } finally {
-
-      setIsLoading(false); // Certifique-se de definir isLoading como falso, mesmo em caso de erro.
-
+      setIsLoading(false);
     }
+  };
+
+  const handleInputChange = (newValue) => {
+    setSearchValue(newValue);
   };
 
   return (
@@ -88,13 +143,13 @@ export default function VendaRegister() {
           </Link>
         </div>
         <div
-          className="cursor-pointer "
+          className="cursor-pointer"
           style={{ display: "flex", justifyContent: "end" }}
         >
           <Link to="/cliente">
             <SlChart
               data-tooltip-id="my-tooltip"
-              data-tooltip-content="Pagina de Relatorios"
+              data-tooltip-content="Pagina de Relatórios"
             />
             <ReactTooltip id="my-tooltip" />
           </Link>
@@ -105,20 +160,20 @@ export default function VendaRegister() {
               htmlFor="telefone"
               className="block text-gray-600 font-medium"
             >
-              Telefone
+              Contato
             </label>
-            <InputMask
-              type="tel"
+
+            <CustomSelect
               id="telefone"
-              value={telefone}
-              name="telefone"
-              mask="(99) 99999-9999"
-              onChange={(e) => setTelefone(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
-              placeholder="(00) 00000-0000"
+              value={selectedOption}
+              onInputChange={handleInputChange}
+              options={searchResults.map((result) => ({
+                label: `${result.nome} - ${result.telefone}`,
+                value: result.id,
+              }))}
+              onChange={handleSelectChange}
             />
           </div>
-
           <div className="mb-4">
             <label htmlFor="preco" className="block text-gray-600 font-medium">
               Preço

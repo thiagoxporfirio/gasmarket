@@ -5,6 +5,7 @@ import { SlChart } from "react-icons/sl";
 import { Tooltip as ReactTooltip } from "react-tooltip";
 
 import InputMask from "react-input-mask";
+import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import { PulseLoader } from "react-spinners";
 import "react-toastify/dist/ReactToastify.css";
@@ -18,25 +19,20 @@ export default function Register() {
   const [vencimento, setVencimento] = useState("");
   const [categoria, setCategoria] = useState("residencia"); // Padrão para "Residencia"
 
+  const navigate = useNavigate();
+
+  let userLoggedInObject = localStorage.getItem("userLoggedIn");
+  let userLoggedIn = JSON.parse(userLoggedInObject);
+  const token = userLoggedIn.token
+
+  const headers = {
+    Authorization: `${token}`,
+  };
+
   const handleSelectChange = (e) => {
 
     setCategoria(e.target.value);
 
-  };
-  
-  const handleEnderecoChange = (e) => {
-    const enderecoInput = e.target.value;
-
-    // Quebra o endereço em partes: rua, número, bairro, cidade
-    const [rua, numero, bairro, cidade] = enderecoInput.split("-");
-
-    const estado = "SP";
-    const pais = "Brasil";
-
-    // Formata o endereço de acordo com o padrão esperado
-    const enderecoFormatado = `${rua}-${numero}-${bairro}-${cidade}-${estado}-${pais}`;
-
-    setEndereco(enderecoFormatado);
   };
 
   const handleSubmit = async (e) => {
@@ -46,6 +42,7 @@ export default function Register() {
       const formData = {
         nome: name,
         endereco: endereco,
+        categoria: categoria,
         telefone: telefone,
         diasVencimento: vencimento,
       };
@@ -54,15 +51,18 @@ export default function Register() {
         "https://gas-controller-f4c05ad03233.herokuapp.com/cliente",
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: headers,
           body: JSON.stringify(formData),
         }
       );
 
       if (response.ok) {
+        toast.success("Cliente cadastrado");
         setIsLoading(true);
+      
+        console.log(response.ok)
+
+        navigate("/venda");
       } else {
         toast.error("Error! Verifique se os dados estao corretos.");
       }
@@ -70,12 +70,14 @@ export default function Register() {
       console.error("Error ao enviar o FORM:", error);
       setIsLoading(false);
     } finally {
+      
+
       setName("");
       setEndereco("");
       setTelefone("");
       setVencimento("");
 
-      setIsLoading(false); // Certifique-se de definir isLoading como falso, mesmo em caso de erro.
+      setIsLoading(false);
     }
   };
 
@@ -107,7 +109,7 @@ export default function Register() {
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label htmlFor="nome" className="block text-gray-600 font-medium">
-              Nome
+              Nome e sobrenome
             </label>
             <input
               onChange={(e) => setName(e.target.value)}
@@ -131,7 +133,7 @@ export default function Register() {
               value={endereco}
               id="endereco"
               name="endereco"
-              onChange={handleEnderecoChange}
+              onChange={(e) => setEndereco(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
               placeholder="Rua rubens fiori 303 Jd california Sertãozinho"
             />

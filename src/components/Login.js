@@ -29,7 +29,9 @@ export default function Login() {
   
     if (response.ok) {
       const data = await response.json(); // Converte a resposta para JSON
-      const token = data.token; // Assume que o token está na resposta
+      const token = data.token;
+      
+      console.log(data)// Assume que o token está na resposta
   
       setIsLoading(true);
   
