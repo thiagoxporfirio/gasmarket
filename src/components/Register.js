@@ -6,7 +6,7 @@ import { Tooltip as ReactTooltip } from "react-tooltip";
 
 import InputMask from "react-input-mask";
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { PulseLoader } from "react-spinners";
 import "react-toastify/dist/ReactToastify.css";
 import { Link } from "react-router-dom";
@@ -42,7 +42,7 @@ export default function Register() {
       const formData = {
         nome: name,
         endereco: endereco,
-        categoria: categoria,
+        role: categoria,
         telefone: telefone,
         diasVencimento: vencimento,
       };
@@ -187,10 +187,9 @@ export default function Register() {
               id="telefone"
               value={telefone}
               name="telefone"
-              mask="(99) 99999-9999"
               onChange={(e) => setTelefone(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
-              placeholder="(00) 00000-0000"
+              placeholder="(16) 90000-0000"
             />
           </div>
           <div className="mt-4">
