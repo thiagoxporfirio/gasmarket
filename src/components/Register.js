@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { GiGasStove } from "react-icons/gi";
 import { SlChart } from "react-icons/sl";
 import { Tooltip as ReactTooltip } from "react-tooltip";
@@ -17,7 +17,7 @@ export default function Register() {
   const [endereco, setEndereco] = useState("");
   const [telefone, setTelefone] = useState("");
   const [vencimento, setVencimento] = useState("");
-  const [categoria, setCategoria] = useState("residencia"); // Padrão para "Residencia"
+  const [categoria, setCategoria] = useState("Residencia"); // Padrão para "Residencia"
 
   const navigate = useNavigate();
 
@@ -32,7 +32,6 @@ export default function Register() {
   const handleSelectChange = (e) => {
 
     setCategoria(e.target.value);
-
   };
 
   const handleSubmit = async (e) => {
@@ -44,7 +43,7 @@ export default function Register() {
         endereco: endereco,
         role: categoria,
         telefone: telefone,
-        diasVencimento: vencimento,
+        diasVencimento: parseFloat(vencimento),
       };
 
       const response = await fetch(
@@ -152,10 +151,10 @@ export default function Register() {
               onChange={handleSelectChange}
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
             >
-              <option value="residencia">Residencia</option>
-              <option value="automatica">Automatica</option>
-              <option value="estabelecimento">Estabelecimento</option>
-              <option value="portaria">Portaria</option>
+              <option value="Residencia">Residencia</option>
+              <option value="Automatico">Automatico</option>
+              <option value="Estabelecimento">Estabelecimento</option>
+              <option value="Portaria">Portaria</option>
             </select>
           </div>
           <div className="mb-4">
