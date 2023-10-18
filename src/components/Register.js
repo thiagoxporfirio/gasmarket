@@ -1,4 +1,5 @@
 import React from "react";
+import axios from "axios";
 import { useState } from "react";
 import { GiGasStove } from "react-icons/gi";
 import { SlChart } from "react-icons/sl";
@@ -38,28 +39,26 @@ export default function Register() {
     e.preventDefault();
 
     try {
-      const formData = {
-        nome: name,
-        endereco: endereco,
-        role: categoria,
-        telefone: telefone,
-        diasVencimento: parseFloat(vencimento),
-      };
 
-      const response = await fetch(
+      const response = await axios.post(
         "https://gas-controller-f4c05ad03233.herokuapp.com/cliente",
         {
-          method: "POST",
-          headers: headers,
-          body: JSON.stringify(formData),
+          nome: name,
+          endereco: endereco,
+          role: categoria,
+          diasVencimento: parseFloat(vencimento),
+          telefone: telefone,
+        }, // Enviando o objeto como dados
+        {
+          headers: {
+            Authorization: token,
+          },
         }
       );
 
-      if (response.ok) {
+      if (response.status === 201) {
         toast.success("Cliente cadastrado");
         setIsLoading(true);
-      
-        console.log(response.ok)
 
         navigate("/venda");
       } else {

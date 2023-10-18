@@ -22,7 +22,6 @@ function CustomSelect(props) {
 
 export default function VendaRegister() {
   const [isLoading, setIsLoading] = useState(false);
-  const [telefone, setTelefone] = useState("");
   const [preco, setPreco] = useState("");
   const [quantidade, setQuantidade] = useState("");
   const [searchValue, setSearchValue] = useState("");
@@ -51,11 +50,9 @@ export default function VendaRegister() {
           }
         );
         if (!response.ok) {
-          console.log(token);
           throw new Error("Erro ao buscar dados da API");
         }
         const data = await response.json();
-        console.log(data);
         setSearchResults(data);
       } catch (error) {
         console.error(error);
@@ -71,11 +68,10 @@ export default function VendaRegister() {
 
   const handleSelectChange = (selectedOption) => {
     if (selectedOption) {
-      const selectedId = selectedOption.value; 
-      setSelectedClientId(selectedId); 
-      console.log("ID da opção selecionada:", selectedId); 
-      setSelectedOption(selectedOption); 
-      setSearchValue(selectedOption.label); 
+      const selectedId = selectedOption.value;
+      setSelectedClientId(selectedId);
+      setSelectedOption(selectedOption);
+      setSearchValue(selectedOption.label);
     }
   };
 
@@ -95,14 +91,14 @@ export default function VendaRegister() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
       const formData = {
         id: selectedClientId,
-        preco: preco,
-        quantidade: quantidade,
+        preco: parseFloat(preco),
+        quantidade: parseFloat(quantidade),
       };
-
+      setIsLoading(true);
       const response = await fetch(
         "https://gas-controller-f4c05ad03233.herokuapp.com/venda",
         {
@@ -111,16 +107,19 @@ export default function VendaRegister() {
           body: JSON.stringify(formData),
         }
       );
-
-      if (response.ok) {
-        setIsLoading(true);
+  
+      if (response.status === 201) {
+        toast.success("Sucesso! Venda feita.");
       } else {
-        toast.error("Error! Verifique se os dados estão corretos.");
+        toast.error("Erro! Verifique se os dados estão corretos.");
       }
     } catch (error) {
       console.error("Erro ao enviar o FORM:", error);
-      setIsLoading(false);
+      toast.error("Erro! Verifique sua conexão de rede.");
     } finally {
+      setPreco("");
+      setQuantidade("");
+      // Definir isLoading para false após o término da requisição, seja sucesso ou falha.
       setIsLoading(false);
     }
   };
