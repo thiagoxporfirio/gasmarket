@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import axios from "axios";
 import { useState } from "react";
 import { GiGasStove } from "react-icons/gi";
@@ -23,15 +23,29 @@ export default function Register() {
   const navigate = useNavigate();
 
   let userLoggedInObject = localStorage.getItem("userLoggedIn");
-  let userLoggedIn = JSON.parse(userLoggedInObject);
-  const token = userLoggedIn.token
+  let userLoggedIn = JSON.parse(userLoggedInObject)
+  let token = userLoggedIn.token;
+
+  function checkAndClearLocalStorage() {
+    if (userLoggedInObject) {
+      const createdDate = new Date(userLoggedIn.created_at);
+      const currentDate = new Date();
+      const twoDaysInMilliseconds = 2 * 24 * 60 * 60 * 1000; // 2 dias em milissegundos
+      if (currentDate - createdDate >= twoDaysInMilliseconds) {
+        localStorage.removeItem("userLoggedIn");
+      }
+    }
+  }
+
+  useEffect(() => {
+    checkAndClearLocalStorage();
+  }, []);
 
   const headers = {
     Authorization: `${token}`,
   };
 
   const handleSelectChange = (e) => {
-
     setCategoria(e.target.value);
   };
 
@@ -39,7 +53,6 @@ export default function Register() {
     e.preventDefault();
 
     try {
-
       const response = await axios.post(
         "https://gas-controller-f4c05ad03233.herokuapp.com/cliente",
         {
@@ -68,8 +81,6 @@ export default function Register() {
       console.error("Error ao enviar o FORM:", error);
       setIsLoading(false);
     } finally {
-      
-
       setName("");
       setEndereco("");
       setTelefone("");
@@ -85,10 +96,7 @@ export default function Register() {
         <div className="text-center mb-6">
           <GiGasStove alt="Logo da Empresa" className="mx-auto w-[60px] h-16" />
           <h1 className="text-2xl font-semibold">Cadastrar cliente</h1>
-          <Link
-            to="/venda"
-            className="text-blue-500 hover:underline"
-          >
+          <Link to="/venda" className="text-blue-500 hover:underline">
             Já existe o cliente?
           </Link>
         </div>
