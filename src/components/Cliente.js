@@ -1,17 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { FaArrowLeft } from "react-icons/fa";
-import { Table, Select, Modal } from "antd";
-import { DeleteOutlined } from "@ant-design/icons";
+import { Table, Select, Modal, Input } from "antd";
+import { ArrowRightOutlined, DeleteOutlined } from "@ant-design/icons";
+import { FcDatabase, FcDataRecovery } from "react-icons/fc";
+
+import { useNavigate } from "react-router-dom";
 
 import axios from "axios";
 
 const { Option } = Select;
 
 export default function ClientList() {
+  const [message, setMessage] = useState("");
   const [data, setData] = useState([]);
   const [selectedOption, setSelectedOption] = useState("allClients");
   const [loading, setLoading] = useState(false);
   const [dataFetched, setDataFetched] = useState(false);
+
+  const navigate = useNavigate();
 
   const [columns, setColumns] = useState([]);
 
@@ -75,19 +81,47 @@ export default function ClientList() {
   };
 
   const handleGoBack = () => {
-    window.history.goBack(); // Navega de volta para a página anterior
+    navigate("/registerclients");
+  };
+
+  const handleMessageChange = (e) => {
+    setMessage(e.target.value);
+  };
+
+  const showSendModal = (record) => {
+    Modal.success({
+      title: "Enviar SMS",
+      content: (
+        <div>
+          <p>
+            {`Enviar menssagem para: ${record.nome}?`}
+            <br />
+            {`Numero: ${record.telefone}`}
+          </p>
+          <Input
+            placeholder="Digite a mensagem a ser enviada"
+            value={message}
+            onChange={handleMessageChange}
+          />
+        </div>
+      ),
+      onOk: () => {
+        // Implemente a função de envio, passando também a mensagem
+        // handleSendAction(record.id, message);
+      },
+    });
   };
 
   const showDeleteModal = (record) => {
     Modal.confirm({
-      title: "Confirmação de Exclusão",
+      title: "Excluir Cliente",
       content: `Tem certeza que deseja excluir o cliente ${record.nome}?`,
-      onOk: () => handleDeleteClient(record.id), // Aqui, você deve implementar a função de exclusão do cliente
+      onOk: () => handleDeleteClient(record.id),
     });
   };
 
   const handleDeleteClient = (clienteId) => {
-    console.log(clienteId)
+    console.log(clienteId);
     axios
       .delete(
         `https://gas-controller-f4c05ad03233.herokuapp.com/cliente/${clienteId}`,
@@ -102,10 +136,10 @@ export default function ClientList() {
             content: `O cliente foi excluído com sucesso.`,
           });
 
-        setDataFetched(false);
+          setDataFetched(false);
         } else {
           Modal.error({
-            title: "Erro na Exclusão",
+            title: "Erro para Excluir",
             content:
               "Ocorreu um erro ao excluir o cliente. Verifique sua conexão e tente novamente.",
           });
@@ -114,7 +148,7 @@ export default function ClientList() {
       .catch((error) => {
         console.error("Erro ao excluir cliente:", error);
         Modal.error({
-          title: "Erro na Exclusão",
+          title: "Erro para Excluir",
           content:
             "Ocorreu um erro ao excluir o cliente. Verifique sua conexão e tente novamente.",
         });
@@ -161,11 +195,15 @@ export default function ClientList() {
       dataIndex: "actions",
       key: "actions",
       render: (_, record) => (
-        <a onClick={() => showDeleteModal(record)}>
-          {" "}
-          {/* Aqui, chamamos a função para mostrar o modal */}
-          <DeleteOutlined /> Excluir
-        </a>
+        <>
+          <a onClick={() => showDeleteModal(record)}>
+            <DeleteOutlined /> Excluir
+          </a>
+          <br />
+          <a onClick={() => showSendModal(record)}>
+            <ArrowRightOutlined /> Enviar menssagem
+          </a>
+        </>
       ),
     },
   ];
@@ -187,13 +225,31 @@ export default function ClientList() {
       title: "Preço",
       dataIndex: "preco",
       key: "preco",
-      render: (text) => <p>{text}</p>,
+      render: (text) => <p>{text + `,00 R$`}</p>,
     },
     {
       title: "Tipo do Cliente",
       dataIndex: ["cliente", "role"],
       key: "cliente.role",
       render: (text) => <p>{text}</p>,
+    },
+    {
+      title: "Vencimento",
+      dataIndex: ["cliente", "diasVencimento"],
+      key: "cliente.diasVencimento",
+      render: (text) => (
+        <>
+          {text > 0 ? (
+            <a>
+              {<FcDatabase />} {text} Dias
+            </a>
+          ) : (
+            <a>
+              <FcDataRecovery /> Venceu! :X
+            </a>
+          )}
+        </>
+      ),
     },
   ];
 
