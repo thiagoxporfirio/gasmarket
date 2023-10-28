@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { GiGasStove } from "react-icons/gi";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import { PulseLoader } from "react-spinners";
@@ -13,6 +13,7 @@ export default function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
     const formData = {
       nome: user,
@@ -31,8 +32,6 @@ export default function Login() {
       const data = await response.json(); // Converte a resposta para JSON
       const token = data.token;
   
-      setIsLoading(true);
-  
       setTimeout(() => {
         localStorage.setItem(
           "userLoggedIn",
@@ -40,7 +39,7 @@ export default function Login() {
         );
         localStorage.setItem("userLoggedInOk", "true");
         navigate("/registerclients");
-      }, 2000);
+      }, 500);
     } else {
       toast.error("Error! Verifique suas credenciais.");
     }

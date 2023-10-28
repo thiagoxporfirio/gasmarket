@@ -1,4 +1,5 @@
 import React from 'react';
+
 // components
 import AppRoutes from './routes';
 import { ToastContainer } from "react-toastify";

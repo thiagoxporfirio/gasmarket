@@ -9,6 +9,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { Link } from "react-router-dom";
 import { FaSearch } from "react-icons/fa";
 
+import axios from "axios";
+
 function CustomSelect(props) {
   return (
     <div className="relative">
@@ -28,6 +30,11 @@ export default function VendaRegister() {
   const [searchResults, setSearchResults] = useState([]);
   const [selectedOption, setSelectedOption] = useState(null);
   const [selectedClientId, setSelectedClientId] = useState(null);
+  // const [selectedClientName, setSelectedClientName] = useState(null);
+  // const [selectedClientTell, setSelectedClientTell] = useState(null);
+  // const [selectedClientEnd, setSelectedClientEnd] = useState(null);
+  // const [selectedClientRole, setSelectedClientRole] = useState(null);
+  // const [selectedClientDays, setSelectedClientDays] = useState(null);
   const dataAtual = new Date().toLocaleDateString();
 
   let userLoggedInObject = localStorage.getItem("userLoggedIn");
@@ -68,7 +75,13 @@ export default function VendaRegister() {
 
   const handleSelectChange = (selectedOption) => {
     if (selectedOption) {
-      const selectedId = selectedOption.value;
+      let selectedId = selectedOption.value[0];
+      // let selectedName = selectedOption.value[1];
+      // let selectedTell = selectedOption.value[2];
+      // let selectedEndereco = selectedOption.value[3];
+      // let selectedRole = selectedOption.value[4];
+      // let selectedDiasVencimento = selectedOption.value[5];
+
       setSelectedClientId(selectedId);
       setSelectedOption(selectedOption);
       setSearchValue(selectedOption.label);
@@ -91,23 +104,25 @@ export default function VendaRegister() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+    setIsLoading(true);
     try {
-      const formData = {
-        id: selectedClientId,
-        preco: parseFloat(preco),
-        quantidade: parseFloat(quantidade),
-      };
-      setIsLoading(true);
-      const response = await fetch(
+
+      const response = await axios.post(
         "https://gas-controller-f4c05ad03233.herokuapp.com/venda",
         {
-          method: "POST",
-          headers: headers,
-          body: JSON.stringify(formData),
+          preco: parseFloat(preco),
+          quantidade: parseFloat(quantidade),
+          cliente: {
+            id: selectedClientId,
+          },
+        },
+        {
+          headers: {
+            Authorization: token,
+          },
         }
       );
-  
+
       if (response.status === 201) {
         toast.success("Sucesso! Venda feita.");
       } else {
@@ -168,7 +183,14 @@ export default function VendaRegister() {
               onInputChange={handleInputChange}
               options={searchResults.map((result) => ({
                 label: `${result.nome} - ${result.telefone}`,
-                value: result.id,
+                value: [
+                  result.id,
+                  result.nome,
+                  result.telefone,
+                  result.endereco,
+                  result.role,
+                  result.diasVencimento,
+                ],
               }))}
               onChange={handleSelectChange}
             />

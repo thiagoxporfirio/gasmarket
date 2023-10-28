@@ -51,7 +51,8 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setIsLoading(true);
+    
     try {
       const response = await axios.post(
         "https://gas-controller-f4c05ad03233.herokuapp.com/cliente",
@@ -71,7 +72,6 @@ export default function Register() {
 
       if (response.status === 201) {
         toast.success("Cliente cadastrado");
-        setIsLoading(true);
 
         navigate("/venda");
       } else {
