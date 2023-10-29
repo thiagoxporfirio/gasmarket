@@ -90,6 +90,15 @@ export default function ClientList() {
     setData(filteredData);
   };
 
+  const handleSearchEnd = () => {
+    const filteredData2 = data.filter(
+      (item) =>
+        item.endereco.toLowerCase().includes(searchText.toLowerCase())
+    );
+
+    setData(filteredData2);
+  };
+
   const handleSelectChange = (value) => {
     setSelectedOption(value);
     setDataFetched(false); // Reset da marcação de dados carregados
@@ -103,6 +112,9 @@ export default function ClientList() {
       startDate = addDays(currentDate, -30);
     } else if (value === "60days") {
       startDate = addDays(currentDate, -60);
+    }
+    else if (value === "5days") {
+      startDate = addDays(currentDate, -5);
     } else if (value === "90days") {
       startDate = addDays(currentDate, -90);
     }
@@ -306,33 +318,62 @@ export default function ClientList() {
 
   return (
     <div className="bg-white rounded-lg shadow-md p-4">
-      
-        <button
-          onClick={handleGoBack}
-          className="bg-blue-500 text-white rounded p-2"
-        >
-          <FaArrowLeft />
-        </button>
-        <h2 className="text-2xl font-semibold mb-4">
-          Lista de Clientes e Vendas
-        </h2>
-        <div className="flex gap-10">
-        <div className="mb-4">
-          <label
-            htmlFor="selectOption"
-            className="block text-gray-600 font-medium"
-          >
-            Selecione uma opção:
-          </label>
-          <Select
-            id="selectOption"
-            value={selectedOption}
-            onChange={handleSelectChange}
-            style={{ width: 200 }}
-          >
-            <Option value="allClients">Todos os Clientes</Option>
-            <Option value="allSales">Todas as Vendas</Option>
-          </Select>
+      <button
+        onClick={handleGoBack}
+        className="bg-blue-500 text-white rounded p-2"
+      >
+        <FaArrowLeft />
+      </button>
+      <h2 className="text-2xl font-semibold mb-4">
+        Lista de Clientes e Vendas
+      </h2>
+      <div className="flex gap-10">
+        <div className="mb-4 flex gap-10">
+          <div>
+            <label
+              htmlFor="selectOption"
+              className="block text-gray-600 font-medium"
+            >
+              Selecione uma opção:
+            </label>
+            <Select
+              id="selectOption"
+              value={selectedOption}
+              onChange={handleSelectChange}
+              style={{ width: 200 }}
+            >
+              <Option value="allClients">Todos os Clientes</Option>
+              <Option value="allSales">Todas as Vendas</Option>
+            </Select>
+          </div>
+          {selectedOption === "allClients" && (
+            <div className="">
+              <label
+                htmlFor="searchInput"
+                className="block text-gray-600 font-medium"
+              >
+                Endereco:
+              </label>
+              <Input
+                id="searchInput"
+                placeholder="Digite o endereco do cliente"
+                value={searchText}
+                onChange={(e) => {
+                  setSearchText(e.target.value);
+                  if (e.target.value === "") {
+                    // Se o campo de pesquisa estiver vazio, atualize a opção selecionada para "allClients"
+                    handleSelectChange("allClients");
+                  }
+                }}
+                style={{ width: 200 }}
+              />
+              <SearchOutlined
+                onClick={handleSearchEnd}
+                type="primary"
+                className="ml-2 text-gray-600 group hover:text-blue-500 cursor-pointer"
+              />
+            </div>
+          )}
         </div>
         {selectedOption === "allSales" && (
           <div className="mb-4 flex gap-10">
@@ -375,6 +416,7 @@ export default function ClientList() {
                 onChange={handleSalesPeriodChange}
                 style={{ width: 200 }}
               >
+                <Option value="5days">5 dias</Option>
                 <Option value="30days">30 dias</Option>
                 <Option value="60days">60 dias</Option>
                 <Option value="90days">90 dias</Option>
