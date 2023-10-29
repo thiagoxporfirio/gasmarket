@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { FaArrowLeft } from "react-icons/fa";
-import { Table, Select, Modal, Input, Button } from "antd";
+import { Table, Select, Modal, Input } from "antd";
 import { format } from "date-fns";
+import { addDays, isBefore } from "date-fns";
 import {
   ArrowRightOutlined,
   DeleteOutlined,
@@ -86,13 +87,35 @@ export default function ClientList() {
       item.cliente.nome.toLowerCase().includes(searchText.toLowerCase())
     );
 
-    // Atualize o estado 'data' com os dados filtrados
     setData(filteredData);
   };
 
   const handleSelectChange = (value) => {
     setSelectedOption(value);
     setDataFetched(false); // Reset da marcação de dados carregados
+  };
+
+  const handleSalesPeriodChange = (value) => {
+    const currentDate = new Date();
+
+    let startDate;
+    if (value === "30days") {
+      startDate = addDays(currentDate, -30);
+    } else if (value === "60days") {
+      startDate = addDays(currentDate, -60);
+    } else if (value === "90days") {
+      startDate = addDays(currentDate, -90);
+    }
+
+    const filteredSales = data.filter((sale) => {
+      // A data da venda está em formato de string, converta para um objeto Date
+      const saleDate = new Date(sale.cliente.created_at);
+
+      // Verifique se a data da venda está após a data de início
+      return isBefore(saleDate, currentDate) && isBefore(startDate, saleDate);
+    });
+
+    setData(filteredSales);
   };
 
   const handleGoBack = () => {
@@ -283,57 +306,80 @@ export default function ClientList() {
 
   return (
     <div className="bg-white rounded-lg shadow-md p-4">
-      <button
-        onClick={handleGoBack}
-        className="bg-blue-500 text-white rounded p-2"
-      >
-        <FaArrowLeft />
-      </button>
-      <h2 className="text-2xl font-semibold mb-4">
-        Lista de Clientes e Vendas
-      </h2>
-      <div className="mb-4">
-        <label
-          htmlFor="selectOption"
-          className="block text-gray-600 font-medium"
+      
+        <button
+          onClick={handleGoBack}
+          className="bg-blue-500 text-white rounded p-2"
         >
-          Selecione uma opção:
-        </label>
-        <Select
-          id="selectOption"
-          value={selectedOption}
-          onChange={handleSelectChange}
-          style={{ width: 200 }}
-        >
-          <Option value="allClients">Todos os Clientes</Option>
-          <Option value="allSales">Todas as Vendas</Option>
-        </Select>
+          <FaArrowLeft />
+        </button>
+        <h2 className="text-2xl font-semibold mb-4">
+          Lista de Clientes e Vendas
+        </h2>
+        <div className="flex gap-10">
+        <div className="mb-4">
+          <label
+            htmlFor="selectOption"
+            className="block text-gray-600 font-medium"
+          >
+            Selecione uma opção:
+          </label>
+          <Select
+            id="selectOption"
+            value={selectedOption}
+            onChange={handleSelectChange}
+            style={{ width: 200 }}
+          >
+            <Option value="allClients">Todos os Clientes</Option>
+            <Option value="allSales">Todas as Vendas</Option>
+          </Select>
+        </div>
         {selectedOption === "allSales" && (
-          <div className="mb-4">
-            <label
-              htmlFor="searchInput"
-              className="block text-gray-600 font-medium"
-            >
-              Pesquisar por Nome:
-            </label>
-            <Input
-              id="searchInput"
-              placeholder="Digite o nome do cliente"
-              value={searchText}
-              onChange={(e) => {
-                setSearchText(e.target.value);
-                if (e.target.value === "") {
-                  // Se o campo de pesquisa estiver vazio, atualize a opção selecionada para "allSales"
-                  handleSelectChange("allSales");
-                }
-              }}
-              style={{ width: 200 }}
-            />
-            <SearchOutlined
-              onClick={handleSearch}
-              type="primary"
-              className="ml-2 text-gray-600 group hover:text-blue-500 cursor-pointer"
-            />
+          <div className="mb-4 flex gap-10">
+            <div>
+              <label
+                htmlFor="searchInput"
+                className="block text-gray-600 font-medium"
+              >
+                Pesquisar por Nome:
+              </label>
+              <Input
+                id="searchInput"
+                placeholder="Digite o nome do cliente"
+                value={searchText}
+                onChange={(e) => {
+                  setSearchText(e.target.value);
+                  if (e.target.value === "") {
+                    // Se o campo de pesquisa estiver vazio, atualize a opção selecionada para "allSales"
+                    handleSelectChange("allSales");
+                  }
+                }}
+                style={{ width: 200 }}
+              />
+              <SearchOutlined
+                onClick={handleSearch}
+                type="primary"
+                className="ml-2 text-gray-600 group hover:text-blue-500 cursor-pointer"
+              />
+            </div>
+
+            <div className="mb-4">
+              <label
+                htmlFor="salesPeriod"
+                className="block text-gray-600 font-medium"
+              >
+                Período de vendas:
+              </label>
+              <Select
+                id="salesPeriod"
+                onChange={handleSalesPeriodChange}
+                style={{ width: 200 }}
+              >
+                <Option value="30days">30 dias</Option>
+                <Option value="60days">60 dias</Option>
+                <Option value="90days">90 dias</Option>
+              </Select>
+            </div>
           </div>
         )}
       </div>
