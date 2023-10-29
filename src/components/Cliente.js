@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { FaArrowLeft } from "react-icons/fa";
-import { Table, Select, Modal, Input } from "antd";
-import { ArrowRightOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Table, Select, Modal, Input, Button } from "antd";
+import { format } from "date-fns";
+import {
+  ArrowRightOutlined,
+  DeleteOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
 import { FcDatabase, FcDataRecovery } from "react-icons/fc";
 
 import { useNavigate } from "react-router-dom";
@@ -16,6 +21,7 @@ export default function ClientList() {
   const [selectedOption, setSelectedOption] = useState("allClients");
   const [loading, setLoading] = useState(false);
   const [dataFetched, setDataFetched] = useState(false);
+  const [searchText, setSearchText] = useState("");
 
   const navigate = useNavigate();
 
@@ -74,6 +80,15 @@ export default function ClientList() {
 
     fetchData();
   }, [selectedOption, headers, dataFetched]);
+
+  const handleSearch = () => {
+    const filteredData = data.filter((item) =>
+      item.cliente.nome.toLowerCase().includes(searchText.toLowerCase())
+    );
+
+    // Atualize o estado 'data' com os dados filtrados
+    setData(filteredData);
+  };
 
   const handleSelectChange = (value) => {
     setSelectedOption(value);
@@ -234,22 +249,35 @@ export default function ClientList() {
       render: (text) => <p>{text}</p>,
     },
     {
+      title: "Data da venda",
+      dataIndex: ["cliente", "created_at"],
+      key: "cliente.created_at",
+      render: (text) => {
+        const formattedDate = format(new Date(text), "dd/MM/yyyy HH:mm:ss");
+        return <p>{formattedDate}</p>;
+      },
+    },
+    {
       title: "Vencimento",
       dataIndex: ["cliente", "diasVencimento"],
       key: "cliente.diasVencimento",
-      render: (text) => (
-        <>
-          {text > 0 ? (
-            <a>
-              {<FcDatabase />} {text} Dias
-            </a>
-          ) : (
-            <a>
-              <FcDataRecovery /> Venceu! :X
-            </a>
-          )}
-        </>
-      ),
+      render: (text) => {
+        let days = text;
+
+        return (
+          <>
+            {text > 0 ? (
+              <a>
+                {<FcDatabase />} {text} Dias
+              </a>
+            ) : (
+              <a>
+                <FcDataRecovery /> Venceu!
+              </a>
+            )}
+          </>
+        );
+      },
     },
   ];
 
@@ -280,6 +308,34 @@ export default function ClientList() {
           <Option value="allClients">Todos os Clientes</Option>
           <Option value="allSales">Todas as Vendas</Option>
         </Select>
+        {selectedOption === "allSales" && (
+          <div className="mb-4">
+            <label
+              htmlFor="searchInput"
+              className="block text-gray-600 font-medium"
+            >
+              Pesquisar por Nome:
+            </label>
+            <Input
+              id="searchInput"
+              placeholder="Digite o nome do cliente"
+              value={searchText}
+              onChange={(e) => {
+                setSearchText(e.target.value);
+                if (e.target.value === "") {
+                  // Se o campo de pesquisa estiver vazio, atualize a opção selecionada para "allSales"
+                  handleSelectChange("allSales");
+                }
+              }}
+              style={{ width: 200 }}
+            />
+            <SearchOutlined
+              onClick={handleSearch}
+              type="primary"
+              className="ml-2 text-gray-600 group hover:text-blue-500 cursor-pointer"
+            />
+          </div>
+        )}
       </div>
       <Table
         dataSource={data}
