@@ -3,6 +3,7 @@ import axios from "axios";
 import { useState } from "react";
 import { GiGasStove } from "react-icons/gi";
 import { SlChart } from "react-icons/sl";
+import { ImExit } from "react-icons/im";
 import { Tooltip as ReactTooltip } from "react-tooltip";
 
 import InputMask from "react-input-mask";
@@ -43,6 +44,13 @@ export default function Register() {
 
   const headers = {
     Authorization: `${token}`,
+  };
+
+  const handleLogout = () => {
+    // Limpa o localStorage
+    localStorage.clear();
+    
+    navigate('/')
   };
 
   const handleSelectChange = (e) => {
@@ -102,12 +110,19 @@ export default function Register() {
         </div>
         <div
           className="cursor-pointer "
-          style={{ display: "flex", justifyContent: "end" }}
+          style={{ display: "flex", justifyContent: "space-between" }}
         >
           <Link to="/cliente">
             <SlChart
               data-tooltip-id="my-tooltip"
               data-tooltip-content="Pagina de Relatorios"
+            />
+            <ReactTooltip id="my-tooltip" />
+          </Link>
+          <Link onClick={handleLogout} to="/">
+            <ImExit
+              data-tooltip-id="my-tooltip"
+              data-tooltip-content="Sair / Logout"
             />
             <ReactTooltip id="my-tooltip" />
           </Link>

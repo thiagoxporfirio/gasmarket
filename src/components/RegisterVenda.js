@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { FcSalesPerformance } from "react-icons/fc";
 import { SlChart } from "react-icons/sl";
+import { ImExit } from "react-icons/im";
 import { Tooltip as ReactTooltip } from "react-tooltip";
 import Select from "react-select";
 import { toast } from "react-toastify";
 import { PulseLoader } from "react-spinners";
 import "react-toastify/dist/ReactToastify.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaSearch } from "react-icons/fa";
 
 import axios from "axios";
@@ -41,6 +42,8 @@ export default function VendaRegister() {
   let userLoggedIn = JSON.parse(userLoggedInObject);
   const token = userLoggedIn.token;
 
+  const navigate = useNavigate();
+
   const headers = {
     Authorization: `${token}`,
   };
@@ -72,6 +75,13 @@ export default function VendaRegister() {
       setSearchResults([]);
     }
   }, [searchValue]);
+
+  const handleLogout = () => {
+    // Limpa o localStorage
+    localStorage.clear();
+    
+    navigate('/')
+  };
 
   const handleSelectChange = (selectedOption) => {
     if (selectedOption) {
@@ -158,12 +168,19 @@ export default function VendaRegister() {
         </div>
         <div
           className="cursor-pointer"
-          style={{ display: "flex", justifyContent: "end" }}
+          style={{ display: "flex", justifyContent: "space-between" }}
         >
           <Link to="/cliente">
             <SlChart
               data-tooltip-id="my-tooltip"
               data-tooltip-content="Pagina de Relatórios"
+            />
+            <ReactTooltip id="my-tooltip" />
+          </Link>
+          <Link onClick={handleLogout} to="/">
+            <ImExit
+              data-tooltip-id="my-tooltip"
+              data-tooltip-content="Sair / Logout"
             />
             <ReactTooltip id="my-tooltip" />
           </Link>

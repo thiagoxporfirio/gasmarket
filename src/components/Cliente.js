@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { FaArrowLeft } from "react-icons/fa";
+import { ImExit } from "react-icons/im";
 import { Table, Select, Modal, Input } from "antd";
 import { format } from "date-fns";
 import { addDays, isBefore } from "date-fns";
+import { Tooltip as ReactTooltip } from "react-tooltip";
 import {
   ArrowRightOutlined,
   DeleteOutlined,
@@ -10,7 +12,7 @@ import {
 } from "@ant-design/icons";
 import { FcDatabase, FcDataRecovery } from "react-icons/fc";
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 import axios from "axios";
 
@@ -82,6 +84,13 @@ export default function ClientList() {
     fetchData();
   }, [selectedOption, headers, dataFetched]);
 
+  const handleLogout = () => {
+    // Limpa o localStorage
+    localStorage.clear();
+
+    navigate("/");
+  };
+
   const handleSearch = () => {
     const filteredData = data.filter((item) =>
       item.cliente.nome.toLowerCase().includes(searchText.toLowerCase())
@@ -91,9 +100,8 @@ export default function ClientList() {
   };
 
   const handleSearchEnd = () => {
-    const filteredData2 = data.filter(
-      (item) =>
-        item.endereco.toLowerCase().includes(searchText.toLowerCase())
+    const filteredData2 = data.filter((item) =>
+      item.endereco.toLowerCase().includes(searchText.toLowerCase())
     );
 
     setData(filteredData2);
@@ -112,8 +120,7 @@ export default function ClientList() {
       startDate = addDays(currentDate, -30);
     } else if (value === "60days") {
       startDate = addDays(currentDate, -60);
-    }
-    else if (value === "5days") {
+    } else if (value === "5days") {
       startDate = addDays(currentDate, -5);
     } else if (value === "90days") {
       startDate = addDays(currentDate, -90);
@@ -318,12 +325,23 @@ export default function ClientList() {
 
   return (
     <div className="bg-white rounded-lg shadow-md p-4">
-      <button
-        onClick={handleGoBack}
-        className="bg-blue-500 text-white rounded p-2"
-      >
-        <FaArrowLeft />
-      </button>
+      <div className="flex justify-start items-center justify-center">
+        <button
+          onClick={handleGoBack}
+          className="bg-blue-500 text-white rounded p-2 mr-10"
+        >
+          <FaArrowLeft />
+        </button>
+        <Link onClick={handleLogout} to="/" className="text-blue-500 flex items-center">
+          <ImExit
+            style={{ fontSize: '28px' }}
+            data-tooltip-id="my-tooltip"
+            data-tooltip-content="Sair / Logout"
+          />Sair
+          <ReactTooltip id="my-tooltip" />
+        </Link>
+      </div>
+
       <h2 className="text-2xl font-semibold mb-4">
         Lista de Clientes e Vendas
       </h2>
