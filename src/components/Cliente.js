@@ -69,6 +69,16 @@ export default function ClientList() {
 
           setColumns(columnsAllSales);
         }
+        else if (selectedOption === "allCloseSell") {
+          response = await axios.get(
+            "https://gas-controller-f4c05ad03233.herokuapp.com/relatorio ",
+            {
+              headers: headers,
+            }
+          );
+
+          setColumns(columnsAllClose);
+        }
 
         if (response && Array.isArray(response.data)) {
           setData(response.data);
@@ -323,6 +333,55 @@ export default function ClientList() {
     },
   ];
 
+  const columnsAllClose = [
+    {
+      title: "Nome",
+      dataIndex: "nome",
+      key: "nome",
+      render: (text) => <h3 className="text-lg font-medium">{text}</h3>,
+    },
+    {
+      title: "Telefone",
+      dataIndex: "telefone",
+      key: "telefone",
+      render: (text) => {
+        // Verifique se o número de telefone tem a quantidade correta de dígitos
+        if (text && text.length === 11) {
+          return `(${text.substring(0, 2)}) ${text.substring(
+            2,
+            7
+          )}-${text.substring(7)}`;
+        } else {
+          return text;
+        }
+      },
+    },
+    {
+      title: "Endereço",
+      dataIndex: "endereco",
+      key: "endereco",
+      render: (text) => <p>{text}</p>,
+    },
+    {
+      title: "Tipo do Cliente",
+      dataIndex: ["role"],
+      key: "role",
+      render: (text) => <p>{text}</p>,
+    },
+    {
+      title: "Ações",
+      dataIndex: "actions",
+      key: "actions",
+      render: (_, record) => (
+        <>
+          <a onClick={() => showSendModal(record)}>
+            <ArrowRightOutlined /> Enviar menssagem
+          </a>
+        </>
+      ),
+    },
+  ];
+
   return (
     <div className="bg-white rounded-lg shadow-md p-4">
       <div className="flex justify-start items-center justify-center">
@@ -362,6 +421,7 @@ export default function ClientList() {
             >
               <Option value="allClients">Todos os Clientes</Option>
               <Option value="allSales">Todas as Vendas</Option>
+              <Option value="allCloseSell">Clientes Vencidos</Option>
             </Select>
           </div>
           {selectedOption === "allClients" && (
