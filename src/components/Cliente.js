@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FaArrowLeft } from "react-icons/fa";
-import { ImExit } from "react-icons/im";
+import { ImExit, ImEnter } from "react-icons/im";
 import { Table, Select, Modal, Input } from "antd";
 import { format } from "date-fns";
 import { addDays, isBefore } from "date-fns";
@@ -68,8 +68,7 @@ export default function ClientList() {
           );
 
           setColumns(columnsAllSales);
-        }
-        else if (selectedOption === "allCloseSell") {
+        } else if (selectedOption === "allCloseSell") {
           response = await axios.get(
             "https://gas-controller-f4c05ad03233.herokuapp.com/relatorio ",
             {
@@ -384,19 +383,31 @@ export default function ClientList() {
 
   return (
     <div className="bg-white rounded-lg shadow-md p-4">
-      <div className="flex justify-start items-center justify-center">
-        <button
+      <div className="flex justify-start items-center justify-center gap-4">
+        <Link
           onClick={handleGoBack}
-          className="bg-blue-500 text-white rounded p-2 mr-10"
+          to="/registerclients"
+          className="text-blue-500 flex items-center"
         >
-          <FaArrowLeft />
-        </button>
-        <Link onClick={handleLogout} to="/" className="text-blue-500 flex items-center">
+          Voltar
+          <ImEnter
+            style={{ fontSize: "28px" }}
+            data-tooltip-id="my-tooltip"
+            data-tooltip-content="Voltar a pagina"
+          />
+          <ReactTooltip id="my-tooltip" />
+        </Link>
+        <Link
+          onClick={handleLogout}
+          to="/"
+          className="text-blue-500 flex items-center"
+        >
           <ImExit
-            style={{ fontSize: '28px' }}
+            style={{ fontSize: "28px" }}
             data-tooltip-id="my-tooltip"
             data-tooltip-content="Sair / Logout"
-          />Sair
+          />
+          Sair
           <ReactTooltip id="my-tooltip" />
         </Link>
       </div>
@@ -421,7 +432,7 @@ export default function ClientList() {
             >
               <Option value="allClients">Todos os Clientes</Option>
               <Option value="allSales">Todas as Vendas</Option>
-              <Option value="allCloseSell">Clientes Vencidos</Option>
+              <Option value="allCloseSell">Vendas a vencer</Option>
             </Select>
           </div>
           {selectedOption === "allClients" && (
