@@ -24,6 +24,7 @@ export default function ClientList() {
   const [loading, setLoading] = useState(false);
   const [dataFetched, setDataFetched] = useState(false);
   const [searchText, setSearchText] = useState("");
+  const [searchTextEnd, setSearchTextEnd] = useState("");
 
   const navigate = useNavigate();
 
@@ -120,7 +121,7 @@ export default function ClientList() {
 
   const handleSearchEnd2 = () => {
     const filteredData3 = data.filter((item) =>
-      item.cliente.endereco.toLowerCase().includes(searchText.toLowerCase())
+      item.cliente.endereco.toLowerCase().includes(searchTextEnd.toLowerCase())
     );
 
     setData(filteredData3);
@@ -486,9 +487,9 @@ export default function ClientList() {
               <Input
                 id="searchInput"
                 placeholder="Digite o endereco do cliente"
-                value={searchText}
+                value={searchTextEnd}
                 onChange={(e) => {
-                  setSearchText(e.target.value);
+                  setSearchTextEnd(e.target.value);
                   if (e.target.value === "") {
                     // Se o campo de pesquisa estiver vazio, atualize a opção selecionada para "allClients"
                     handleSelectChange("allSales");
