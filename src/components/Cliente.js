@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { FaArrowLeft } from "react-icons/fa";
 import { ImExit, ImEnter } from "react-icons/im";
 import { Table, Select, Modal, Input } from "antd";
 import { format } from "date-fns";
@@ -101,9 +100,12 @@ export default function ClientList() {
   };
 
   const handleSearch = () => {
+    console.log(data)
     const filteredData = data.filter((item) =>
       item.cliente.nome.toLowerCase().includes(searchText.toLowerCase())
+      
     );
+    
 
     setData(filteredData);
   };
@@ -114,6 +116,14 @@ export default function ClientList() {
     );
 
     setData(filteredData2);
+  };
+
+  const handleSearchEnd2 = () => {
+    const filteredData3 = data.filter((item) =>
+      item.endereco.toLowerCase().includes(searchText.toLowerCase())
+    );
+
+    setData(filteredData3);
   };
 
   const handleSelectChange = (value) => {
@@ -466,6 +476,32 @@ export default function ClientList() {
         </div>
         {selectedOption === "allSales" && (
           <div className="mb-4 flex gap-10">
+            <div className="">
+              <label
+                htmlFor="searchInput"
+                className="block text-gray-600 font-medium"
+              >
+                Endereco:
+              </label>
+              <Input
+                id="searchInput"
+                placeholder="Digite o endereco do cliente"
+                value={searchText}
+                onChange={(e) => {
+                  setSearchText(e.target.value);
+                  if (e.target.value === "") {
+                    // Se o campo de pesquisa estiver vazio, atualize a opção selecionada para "allClients"
+                    handleSelectChange("allSales");
+                  }
+                }}
+                style={{ width: 200 }}
+              />
+              <SearchOutlined
+                onClick={handleSearchEnd2}
+                type="primary"
+                className="ml-2 text-gray-600 group hover:text-blue-500 cursor-pointer"
+              />
+            </div>
             <div>
               <label
                 htmlFor="searchInput"

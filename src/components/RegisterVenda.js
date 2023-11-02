@@ -36,7 +36,7 @@ export default function VendaRegister() {
   // const [selectedClientEnd, setSelectedClientEnd] = useState(null);
   // const [selectedClientRole, setSelectedClientRole] = useState(null);
   // const [selectedClientDays, setSelectedClientDays] = useState(null);
-  const dataAtual = new Date().toLocaleDateString();
+  // const dataAtual = new Date().toLocaleDateString();
 
   let userLoggedInObject = localStorage.getItem("userLoggedIn");
   let userLoggedIn = JSON.parse(userLoggedInObject);
@@ -245,7 +245,7 @@ export default function VendaRegister() {
             />
           </div>
 
-          <div className="mb-4">
+          {/* <div className="mb-4">
             <label htmlFor="data" className="block text-gray-600 font-medium">
               Data de Cadastro
             </label>
@@ -257,7 +257,7 @@ export default function VendaRegister() {
               disabled
               className="w-full p-2 border border-gray-300 rounded-md bg-gray-200"
             />
-          </div>
+          </div> */}
 
           <div className="mt-4">
             <button
@@ -270,7 +270,7 @@ export default function VendaRegister() {
               {isLoading ? (
                 <PulseLoader color="#ffffff" size={8} />
               ) : (
-                "Cadastrar"
+                "Vender"
               )}
             </button>
           </div>
