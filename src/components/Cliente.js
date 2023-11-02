@@ -120,7 +120,7 @@ export default function ClientList() {
 
   const handleSearchEnd2 = () => {
     const filteredData3 = data.filter((item) =>
-      item.endereco.toLowerCase().includes(searchText.toLowerCase())
+      item.cliente.endereco.toLowerCase().includes(searchText.toLowerCase())
     );
 
     setData(filteredData3);
