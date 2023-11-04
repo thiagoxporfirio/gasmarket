@@ -542,10 +542,10 @@ export default function ClientList() {
                 onChange={handleSalesPeriodChange}
                 style={{ width: 200 }}
               >
-                <Option value="5days">5 dias</Option>
-                <Option value="30days">30 dias</Option>
-                <Option value="60days">60 dias</Option>
-                <Option value="90days">90 dias</Option>
+                <Option value="5days">Ultimos 5 dias</Option>
+                <Option value="30days">Ultimos 30 dias</Option>
+                <Option value="60days">Ultimos 60 dias</Option>
+                <Option value="90days">Ultimos 90 dias</Option>
               </Select>
             </div>
           </div>
