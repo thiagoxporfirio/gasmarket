@@ -14,6 +14,7 @@ import { FcDatabase, FcDataRecovery } from "react-icons/fc";
 import { useNavigate, Link } from "react-router-dom";
 
 import axios from "axios";
+// import { Twilio } from "twilio";
 
 const { Option } = Select;
 
@@ -101,12 +102,9 @@ export default function ClientList() {
   };
 
   const handleSearch = () => {
-    console.log(data)
     const filteredData = data.filter((item) =>
       item.cliente.nome.toLowerCase().includes(searchText.toLowerCase())
-      
     );
-    
 
     setData(filteredData);
   };
@@ -142,6 +140,8 @@ export default function ClientList() {
       startDate = addDays(currentDate, -60);
     } else if (value === "5days") {
       startDate = addDays(currentDate, -5);
+    } else if (value === "15days") {
+      startDate = addDays(currentDate, -15);
     } else if (value === "90days") {
       startDate = addDays(currentDate, -90);
     }
@@ -198,7 +198,6 @@ export default function ClientList() {
   };
 
   const handleDeleteClient = (clienteId) => {
-    console.log(clienteId);
     axios
       .delete(
         `https://gas-controller-f4c05ad03233.herokuapp.com/cliente/${clienteId}`,
@@ -228,6 +227,48 @@ export default function ClientList() {
           title: "Erro para Excluir",
           content:
             "Ocorreu um erro ao excluir o cliente. Verifique sua conexão e tente novamente.",
+        });
+      });
+  };
+
+  const showDeleteSell = (record) => {
+    Modal.confirm({
+      title: "Excluir Venda",
+      content: `Tem certeza que deseja excluir a venda de ${record.cliente.nome}?`,
+      onOk: () => handleDeleteSell(record.id),
+    });
+  };
+
+  const handleDeleteSell = (SellId) => {
+    axios
+      .delete(
+        `https://gas-controller-f4c05ad03233.herokuapp.com/venda/${SellId}`,
+        {
+          headers: headers,
+        }
+      )
+      .then((response) => {
+        if (response.status === 200) {
+          Modal.success({
+            title: "Venda excluida",
+            content: `A venda foi excluída com sucesso.`,
+          });
+
+          setDataFetched(false);
+        } else {
+          Modal.error({
+            title: "Erro para Excluir",
+            content:
+              "Ocorreu um erro ao excluir a venda. Verifique sua conexão e tente novamente.",
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("Erro a venda do cliente:", error);
+        Modal.error({
+          title: "Erro para Excluir",
+          content:
+            "Ocorreu um erro ao excluir a venda. Verifique sua conexão e tente novamente.",
         });
       });
   };
@@ -333,9 +374,14 @@ export default function ClientList() {
                 {<FcDatabase />} {text} Dias
               </a>
             ) : (
-              <a>
-                <FcDataRecovery /> Venceu!
-              </a>
+              <div>
+                <a>
+                  <FcDataRecovery /> Venceu!
+                </a>
+                <a onClick={() => showDeleteSell()}>
+                  <DeleteOutlined /> Excluir
+                </a>
+              </div>
             )}
           </>
         );
@@ -384,6 +430,10 @@ export default function ClientList() {
       key: "actions",
       render: (_, record) => (
         <>
+          <a onClick={() => showDeleteSell(record)}>
+            <DeleteOutlined /> Excluir
+          </a>
+          <br />
           <a onClick={() => showSendModal(record)}>
             <ArrowRightOutlined /> Enviar menssagem
           </a>
@@ -503,6 +553,25 @@ export default function ClientList() {
                 className="ml-2 text-gray-600 group hover:text-blue-500 cursor-pointer"
               />
             </div>
+            <div className="mb-4">
+              <label
+                htmlFor="salesPeriod"
+                className="block text-gray-600 font-medium"
+              >
+                Período de vendas:
+              </label>
+              <Select
+                id="salesPeriod"
+                onChange={handleSalesPeriodChange}
+                style={{ width: 200 }}
+              >
+                <Option value="5days">Ultimos 5 dias</Option>
+                <Option value="15days">Ultimos 15 dias</Option>
+                <Option value="30days">Ultimos 30 dias</Option>
+                <Option value="60days">Ultimos 60 dias</Option>
+                <Option value="90days">Ultimos 90 dias</Option>
+              </Select>
+            </div>
             <div>
               <label
                 htmlFor="searchInput"
@@ -528,25 +597,6 @@ export default function ClientList() {
                 type="primary"
                 className="ml-2 text-gray-600 group hover:text-blue-500 cursor-pointer"
               />
-            </div>
-
-            <div className="mb-4">
-              <label
-                htmlFor="salesPeriod"
-                className="block text-gray-600 font-medium"
-              >
-                Período de vendas:
-              </label>
-              <Select
-                id="salesPeriod"
-                onChange={handleSalesPeriodChange}
-                style={{ width: 200 }}
-              >
-                <Option value="5days">Ultimos 5 dias</Option>
-                <Option value="30days">Ultimos 30 dias</Option>
-                <Option value="60days">Ultimos 60 dias</Option>
-                <Option value="90days">Ultimos 90 dias</Option>
-              </Select>
             </div>
           </div>
         )}
