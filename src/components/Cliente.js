@@ -95,7 +95,6 @@ export default function ClientList() {
   }, [selectedOption, headers, dataFetched]);
 
   const handleLogout = () => {
-    // Limpa o localStorage
     localStorage.clear();
 
     navigate("/");
@@ -148,7 +147,7 @@ export default function ClientList() {
 
     const filteredSales = data.filter((sale) => {
       // A data da venda está em formato de string, converta para um objeto Date
-      const saleDate = new Date(sale.cliente.created_at);
+      const saleDate = new Date(sale.cliente?.created_at);
 
       // Verifique se a data da venda está após a data de início
       return isBefore(saleDate, currentDate) && isBefore(startDate, saleDate);
@@ -598,6 +597,27 @@ export default function ClientList() {
                 className="ml-2 text-gray-600 group hover:text-blue-500 cursor-pointer"
               />
             </div>
+          </div>
+        )}
+        {selectedOption === "allCloseSell" && (
+          <div className="mb-4">
+            <label
+              htmlFor="salesPeriod"
+              className="block text-gray-600 font-medium"
+            >
+              Período de vendas:
+            </label>
+            <Select
+              id="salesPeriod"
+              onChange={handleSalesPeriodChange}
+              style={{ width: 200 }}
+            >
+              <Option value="5days">Ultimos 5 dias</Option>
+              <Option value="15days">Ultimos 15 dias</Option>
+              <Option value="30days">Ultimos 30 dias</Option>
+              <Option value="60days">Ultimos 60 dias</Option>
+              <Option value="90days">Ultimos 90 dias</Option>
+            </Select>
           </div>
         )}
       </div>
