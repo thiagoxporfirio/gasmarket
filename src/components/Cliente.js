@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { ImExit, ImEnter } from "react-icons/im";
-import { Table, Select, Modal, Input } from "antd";
+import { Table, Select, Modal, Input, DatePicker } from "antd";
 import { format } from "date-fns";
-import { addDays, isBefore } from "date-fns";
+import { isBefore } from "date-fns";
 import { Tooltip as ReactTooltip } from "react-tooltip";
 import {
   ArrowRightOutlined,
@@ -14,7 +14,6 @@ import { FcDatabase, FcDataRecovery } from "react-icons/fc";
 import { useNavigate, Link } from "react-router-dom";
 
 import axios from "axios";
-// import { Twilio } from "twilio";
 
 const { Option } = Select;
 
@@ -26,6 +25,8 @@ export default function ClientList() {
   const [dataFetched, setDataFetched] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [searchTextEnd, setSearchTextEnd] = useState("");
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
 
   const navigate = useNavigate();
 
@@ -94,6 +95,40 @@ export default function ClientList() {
     fetchData();
   }, [selectedOption, headers, dataFetched]);
 
+  useEffect(() => {
+    handleSalesPeriodChange();
+  }, [startDate, endDate]);
+
+  async function sendWpp(record) {
+    const GZAPPY_URL = "https://api.gzappy.com/v1/message/send-message";
+    const phoneOption = `55${record.telefone}`;
+    const message = `Prezado(a) ${record.nome},
+  
+Aqui é do Rafa Gás, vi no seu cadastro que seu gás esta preste a acabar, verifique o seu gás. Precisando  estaremos sempre a disposição para atendê-lo!!
+
+Atenciosamente,
+[Rafa Gás]`;
+
+    const response = await fetch(GZAPPY_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        user_token_id: "78294aae-25fa-4752-b560-dff5fa1e0646",
+      },
+      body: JSON.stringify({
+        instance_id: "Y161MAZZVOUM9A0O09SJXB25",
+        instance_token: "5923f09c-4c25-4fa4-b211-798841da327a",
+        message: [message],
+        phone: phoneOption,
+      }),
+    });
+
+    const data = await response.json();
+
+    console.log(data);
+    // { msg: 'Messages sent' }
+  }
+
   const handleLogout = () => {
     localStorage.clear();
 
@@ -132,25 +167,14 @@ export default function ClientList() {
   const handleSalesPeriodChange = (value) => {
     const currentDate = new Date();
 
-    let startDate;
-    if (value === "30days") {
-      startDate = addDays(currentDate, -30);
-    } else if (value === "60days") {
-      startDate = addDays(currentDate, -60);
-    } else if (value === "5days") {
-      startDate = addDays(currentDate, -5);
-    } else if (value === "15days") {
-      startDate = addDays(currentDate, -15);
-    } else if (value === "90days") {
-      startDate = addDays(currentDate, -90);
-    }
-
     const filteredSales = data.filter((sale) => {
-      // A data da venda está em formato de string, converta para um objeto Date
       const saleDate = new Date(sale.cliente?.created_at);
 
-      // Verifique se a data da venda está após a data de início
-      return isBefore(saleDate, currentDate) && isBefore(startDate, saleDate);
+      return (
+        isBefore(saleDate, currentDate) &&
+        (startDate ? isBefore(startDate, saleDate) : true) &&
+        (endDate ? isBefore(saleDate, endDate) : true)
+      );
     });
 
     setData(filteredSales);
@@ -174,16 +198,10 @@ export default function ClientList() {
             <br />
             {`Numero: ${record.telefone}`}
           </p>
-          <Input
-            placeholder="Digite a mensagem a ser enviada"
-            value={message}
-            onChange={handleMessageChange}
-          />
         </div>
       ),
       onOk: () => {
-        // Implemente a função de envio, passando também a mensagem
-        // handleSendAction(record.id, message);
+        sendWpp(record);
       },
     });
   };
@@ -559,17 +577,14 @@ export default function ClientList() {
               >
                 Período de vendas:
               </label>
-              <Select
-                id="salesPeriod"
-                onChange={handleSalesPeriodChange}
-                style={{ width: 200 }}
-              >
-                <Option value="5days">Ultimos 5 dias</Option>
-                <Option value="15days">Ultimos 15 dias</Option>
-                <Option value="30days">Ultimos 30 dias</Option>
-                <Option value="60days">Ultimos 60 dias</Option>
-                <Option value="90days">Ultimos 90 dias</Option>
-              </Select>
+              <DatePicker.RangePicker
+                id="dateRangePicker"
+                onChange={(dates) => {
+                  setStartDate(dates[0]);
+                  setEndDate(dates[1]);
+                }}
+                style={{ width: 280 }}
+              />
             </div>
             <div>
               <label
@@ -607,17 +622,14 @@ export default function ClientList() {
             >
               Período de vendas:
             </label>
-            <Select
-              id="salesPeriod"
-              onChange={handleSalesPeriodChange}
-              style={{ width: 200 }}
-            >
-              <Option value="5days">Ultimos 5 dias</Option>
-              <Option value="15days">Ultimos 15 dias</Option>
-              <Option value="30days">Ultimos 30 dias</Option>
-              <Option value="60days">Ultimos 60 dias</Option>
-              <Option value="90days">Ultimos 90 dias</Option>
-            </Select>
+            <DatePicker.RangePicker
+              id="dateRangePicker"
+              onChange={(dates) => {
+                setStartDate(dates[0]);
+                setEndDate(dates[1]);
+              }}
+              style={{ width: 280 }}
+            />
           </div>
         )}
       </div>
